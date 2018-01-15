@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>weather</title>
+	<link rel="stylesheet" type="text/css" href="css/index.css">
+	<link rel="stylesheet" type="text/css" href="css/iconfont.css">
+	<script type="text/javascript" src="static/jquery/jquery.min.js"></script>
+
+	<script type="text/javascript">
+		var weekArr = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+
+		$(function(){
+			$.ajax({
+				url: "https://weixin.jirengu.com/weather/ip",
+				dataType: "json"
+			}).done(function(result){
+				if(result.status){
+					var ip = result.data;
+
+					$.ajax({
+						url: "https://weixin.jirengu.com/weather/cityid",
+						data: {
+							location: ip
+						},
+						method: "get",
+						dataType: "json"
+					}).done(function(results){
+						var cityResult = results.results[0];
+						var cityId = cityResult["id"];
+						var country = cityResult.country;
+						var name = cityResult.name;
+						var path = cityResult.path;
+						var city = path.split(',').length>=2? path.split(',')[path.split(',').length-2]: '';
+
+						$('.search>input').val(name);
+						$('p.location-time').text(city + ',' + country);
+						var date = new Date();
+						var currentTime = date.getHours()+':' + date.getMinutes();
+						var day = date.getDate();
+						var week = date.getDay();
+						var weekStr = weekArr[week];
+						$('p.time').text(currentTime);
+
+						$.ajax({
+							url: "https://weixin.jirengu.com/weather/now",
+							data: {
+								cityid: cityId
+							},
+							dataType: "json"
+						}).done(function(weatherResult){
+							if(weatherResult.status){
+								var weather = weatherResult.weather[0];
+								var now = weather.now;
+								var now_temp = now.temperature;
+								var wind_speed = Math.round(now.wind_speed) + 'mph';
+								var humidity = now.humidity;
+								var code_img = "//weixin.jirengu.com/images/weather/code/" + now.code+ ".png";
+
+								$('#temp').html(now_temp + '<span>&#176;</span>');
+								$('.weather-today .week').html(weekStr + "&nbsp;" +  day + "th");
+
+								$('.right img').attr('src', code_img);
+								$('.right .second').html('<span>' + wind_speed + '</span>/<span>' + humidity + '</span>');
+
+								var futureHtml = '';
+								var future = weather.future;
+								for(var i=1; i<=6; i++){
+									var week = future[i].day;
+									var code1 = future[i].code1;
+									var code1_img = "//weixin.jirengu.com/images/weather/code/" + code1 + ".png";
+									var low = future[i].low;
+
+									futureHtml += '<li>';
+									futureHtml += '<p class="week">'+ week +'</p>';
+									futureHtml += '<p class="img">';
+									futureHtml += '<img src="'+ code1_img +'" alt="">';
+									futureHtml += '</p>';
+									futureHtml += '<p class="temp">';
+									futureHtml += low + '<span>&#176;</span>';
+									futureHtml += '</p>';
+									futureHtml += '</li>';
+
+								}
+								$('.weather-future-list').html(futureHtml);
+
+							}
+						}).error(function(){
+
+						});
+
+					}).error(function(){
+
+					});
+
+				}else {
+					alert('加载失败');
+				}
+			}).error(function(){
+
+			});
+		});
+
+	</script>
+</head>
+<body>
+	<div class="ct">
+		<div class="weather">
+			<div class="weather-location">
+				<div class="search clearfix">
+					<input type="text" placeholder="city">
+					<div class="location-time">
+						<span class=iconfont>&#xe6d1;</span>
+						<p class="location-time">北京,中国</p>
+						<p class="time">04:46 PM</p>
+					</div>
+				</div>
+			</div>
+			<div class="weather-display">
+				<div class="weather-today clearfix">
+					<div class="left">
+						<p id=temp>82<span>&#176;</span></p>
+						<p class="week">Monday 27th</p>
+					</div>
+					<div class="right">
+						<p>
+							<img src="http://weixin.jirengu.com/images/weather/code/0.png" alt="">
+						</p>
+						<p class="second"><span>4mph</span>/<span>67</span></p>
+					</div>
+				</div>
+				<ul class="weather-future-list">
+					<li>
+						<p class="week">TUE</p>
+						<p class="img">
+							<img src="http://weixin.jirengu.com/images/weather/code/10.png" alt="">
+						</p>
+						<p class="temp">
+							60<span>&#176;</span>
+						</p>
+					</li>
+					<li>
+						<p class="week">TUE</p>
+						<p class="img">
+							<img src="http://weixin.jirengu.com/images/weather/code/10.png" alt="">
+						</p>
+						<p class="temp">
+							60<span>&#176;</span>
+						</p>
+					</li>
+					<li>
+						<p class="week">TUE</p>
+						<p class="img">
+							<img src="http://weixin.jirengu.com/images/weather/code/10.png" alt="">
+						</p>
+						<p class="temp">
+							60<span>&#176;</span>
+						</p>
+					</li>
+					<li>
+						<p class="week">TUE</p>
+						<p class="img">
+							<img src="http://weixin.jirengu.com/images/weather/code/10.png" alt="">
+						</p>
+						<p class="temp">
+							60<span>&#176;</span>
+						</p>
+					</li>
+					<li>
+						<p class="week">TUE</p>
+						<p class="img">
+							<img src="http://weixin.jirengu.com/images/weather/code/10.png" alt="">
+						</p>
+						<p class="temp">
+							60<span>&#176;</span>
+						</p>
+					</li>
+					<li>
+						<p class="week">TUE</p>
+						<p class="img">
+							<img src="http://weixin.jirengu.com/images/weather/code/10.png" alt="">
+						</p>
+						<p class="temp">
+							60<span>&#176;</span>
+						</p>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+</body>
+</html>
